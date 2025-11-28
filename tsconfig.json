@@ -18,12 +18,19 @@
     "moduleDetection": "force",
     "allowJs": true,
     "jsx": "react-jsx",
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    },
+    // Eliminamos el bloque 'paths' que causaba conflictos locales
+    // "paths": {
+    //   "@/*": [
+    //     "./*"
+    //   ]
+    // },
     "allowImportingTsExtensions": true,
     "noEmit": true
-  }
+  },
+  // INICIO: Añadimos un bloque 'include' para que Vercel sepa qué archivos compilar
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ]
+  // FIN: Añadimos un bloque 'include'
 }

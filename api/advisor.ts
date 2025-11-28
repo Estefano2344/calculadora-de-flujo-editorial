@@ -1,5 +1,5 @@
+import { ProjectConfig, TeamConfig, CalculationResult } from '../types'; 
 import { GoogleGenAI } from "@google/genai";
-import { ProjectConfig, TeamConfig, CalculationResult } from '../types';
 
 // Esta función es reconocida por Vercel como un API Route.
 // Se recomienda usar el API de Request/Response para compatibilidad.
@@ -9,15 +9,12 @@ export default async function handler(req: Request) {
     }
 
     try {
-        // Se desestructuran los datos enviados desde el frontend
         const { project, team, results } = await req.json() as {
             project: ProjectConfig;
             team: TeamConfig;
             results: CalculationResult;
         };
 
-        // ACCESO SEGURO A LA CLAVE DE LA API - SOLO EN EL SERVIDOR
-        // Vercel inyectará esta variable de entorno en el build del servidor.
         const apiKey = process.env.GEMINI_API_KEY; 
         
         if (!apiKey) {
@@ -59,7 +56,6 @@ export default async function handler(req: Request) {
 
         const advice = response.text ?? 'No se pudo generar el consejo.';
 
-        // Respuesta segura
         return new Response(JSON.stringify({ advice }), { 
             status: 200, 
             headers: { 'Content-Type': 'application/json' } 
