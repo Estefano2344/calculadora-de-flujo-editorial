@@ -1,0 +1,5 @@
+{
+  "name": "Calculadora de Flujo Editorial",
+  "description": "Herramienta especializada para la gestión de proyectos editoriales que calcula la duración basada en complejidad, volumen y equipo.",
+  "requestFramePermissions": []
+}
