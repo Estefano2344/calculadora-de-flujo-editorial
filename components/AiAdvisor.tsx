@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { GoogleGenAI } from "@google/genai";
+// Se elimina la importación de GoogleGenAI 
 import { Sparkles, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { ProjectConfig, TeamConfig, CalculationResult } from '../types';
 
@@ -20,46 +20,30 @@ const AiAdvisor: React.FC<Props> = ({ project, team, results }) => {
     setAdvice(null);
 
     try {
-      const apiKey = process.env.API_KEY;
-      if (!apiKey) {
-        throw new Error("API Key not found in environment.");
-      }
-
-      const ai = new GoogleGenAI({ apiKey });
-      
-      const prompt = `
-        Actúa como un experto Gestor de Proyectos Editoriales.
-        Analiza la siguiente configuración de proyecto y proporciona 3 puntos breves y de alto impacto:
-        1. Un riesgo potencial en el cronograma actual.
-        2. Un consejo de optimización de recursos (ej. dónde agregar/quitar personal).
-        3. Una sugerencia de eficiencia (ej. uso de IA o flujos paralelos).
-
-        Detalles del Proyecto:
-        - Asignatura: ${project.subject} (Complejidad: ${project.complexity})
-        - Escala: ${project.numberOfBooks} libros, ${project.pagesPerBook} páginas cada uno.
-        - Duración Total Estimada: ${results.totalDays} días laborables (~${results.totalMonths} meses).
-        
-        Asignación de Equipo:
-        - Redactores: ${team.contentDev}
-        - Ilustradores: ${team.illustration}
-        - Diagramadores: ${team.design}
-        - Revisores: ${team.review}
-        - Corrección: ${team.corrections}
-
-        Responde en formato HTML válido (lista desordenada <ul> con etiquetas <li>), sin envoltorios \`\`\`html.
-        Mantén el tono profesional, alentador y específico para la industria editorial. Responde en Español.
-      `;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: prompt,
+      // **NUEVA LÓGICA: Llamada fetch al API Route de Vercel**
+      const response = await fetch('/api/advisor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        // Se envían los datos del proyecto al servidor
+        body: JSON.stringify({ project, team, results }),
       });
 
-      setAdvice(response.text ?? null);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Server responded with status ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      // El servidor devuelve el campo 'advice'
+      setAdvice(data.advice ?? null);
 
     } catch (err: any) {
       console.error(err);
-      setError("No se pudo generar el consejo en este momento. Verifica tu conexión o clave API.");
+      // Mensaje de error genérico para el usuario
+      setError("No se pudo generar el consejo en este momento. Intenta de nuevo.");
     } finally {
       setLoading(false);
     }
